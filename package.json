@@ -12,6 +12,9 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.670.0",
     "@aws-sdk/lib-dynamodb": "^3.670.0",
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/vue-fontawesome": "^3.0.8",
     "nuxt": "^3.13.0",
     "vue": "latest",
     "vue-router": "latest"
