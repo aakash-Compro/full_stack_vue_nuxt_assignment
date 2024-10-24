@@ -4,8 +4,8 @@ import { PutCommand } from "@aws-sdk/lib-dynamodb";
 export default defineEventHandler(async (event)=>{
     try{
         const body=await readBody(event);
-        const { user_id,task_name,task_desc,due_date,priority,taskState,tags }=body;
-        if( !user_id || !task_name || !task_desc || !due_date || !priority || !taskState || !tags ){
+        const { user_id,task_name,task_desc,due_date,priority,tags }=body;
+        if( !user_id || !task_name || !task_desc || !due_date || !priority || !tags ){
             return{
                 status:400,
                 body:{
@@ -30,10 +30,11 @@ export default defineEventHandler(async (event)=>{
                 }
             }
         }
-        
+
         const id = Date.now();
 
         const timestamp = new Date().toISOString();
+        const stage='Not Completed';
 
         const todoItem = {
             user_id,
@@ -42,7 +43,7 @@ export default defineEventHandler(async (event)=>{
             task_desc,
             due_date,
             priority,
-            taskState,
+            taskState:stage,
             tags,
             created_at: timestamp,
             updated_at: timestamp,

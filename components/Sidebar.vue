@@ -58,7 +58,6 @@
     <TaskModal
       v-if="showTaskModal"
       @close="closeTaskModal"
-      @add="handleAddTask"
     />
   </div>
 </template>
@@ -77,11 +76,6 @@
 
     const closeTaskModal = () => {
         showTaskModal.value = false;
-    };
-
-    const handleAddTask = (task) => {
-        console.log("Task added:", task);
-        closeTaskModal();
     };
 
     const setActiveSection = (section) => {
@@ -107,6 +101,7 @@
     .user-info {
         margin: 0px;
         font-size: 25px;
+        margin-left:11px;
     }
 
     .menu ul {
