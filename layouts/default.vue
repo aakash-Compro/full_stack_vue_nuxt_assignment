@@ -21,7 +21,7 @@ export default {
   display: flex;
 }
 .content {
-  margin-left: 30%;
+  margin-left: 20%;
   width: 70%;
   padding: 20px;
 }

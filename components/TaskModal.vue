@@ -27,6 +27,7 @@
             <label for="tag">Tag:</label>
             <input type="text" id="tag" v-model="tag" />
           </div>
+          
           <div class="form-group">
             <label for="due_date">Due Date:</label>
             <input type="date" id="due_date" v-model="dueDate" @change="formatDate" />
@@ -76,32 +77,31 @@
       tags: tag.value,
       due_date: dueDate.value
     };
-    try {
-      const response = await $fetch('http://localhost:3000/api/create-todo', {
-        method: 'POST',
-        body: taskData,
-      });
-      if (response.status === 201) {
-        Toastify({
-          text: "Task created successfully!",
-          duration: 3000,
-          gravity: "top",
-          position: "center",
-          backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
-          close: true
-        }).showToast();
-      } else {
-        Toastify({
-          text: "Failed to create task!",
-          duration: 3000,
-          gravity: "top",
-          position: "center",
-          backgroundColor: "red",
-          close: true
-        }).showToast();
-      }
-    } catch (err) {
-      console.error('Error:', err);
+
+    const { data, error, pending } = await useFetch('http://localhost:3000/api/create-todo', {
+      method: 'POST',
+      body: taskData,
+    });
+    if (data.value && data.value.status === 201) {
+      Toastify({
+        text: "Task created successfully!",
+        duration: 3000,
+        gravity: "top",
+        position: "center",
+        backgroundColor: "green",
+        close: true
+      }).showToast();
+      closeModal();
+    }
+    else {
+      Toastify({
+        text: "Failed to create task!",
+        duration: 3000,
+        gravity: "top",
+        position: "center",
+        backgroundColor: "red",
+        close: true
+      }).showToast();
     }
   };
 </script>

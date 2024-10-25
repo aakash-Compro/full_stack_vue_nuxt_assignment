@@ -19,7 +19,6 @@
         </li>
         <li
           :class="{ active: activesection === 'inbox' }"
-          @click="setActiveSection('inbox')"
         >
           <nuxt-link to="/inbox"
             ><font-awesome-icon
@@ -31,7 +30,6 @@
         </li>
         <li
           :class="{ active: activesection === 'today' }"
-          @click="setActiveSection('today')"
         >
           <nuxt-link to="/today"
             ><font-awesome-icon
@@ -43,7 +41,6 @@
         </li>
         <li
           :class="{ active: activesection === 'filter' }"
-          @click="setActiveSection('filter')"
         >
           <nuxt-link to="/filter"
             ><font-awesome-icon
@@ -63,12 +60,16 @@
 </template>
 
 <script setup>
-    import { ref } from "vue";
+    import { ref,onMounted, watch } from "vue";
     import TaskModal from "@/components/TaskModal.vue";
+    import { useRoute, useRouter } from 'vue-router';
 
     let username = ref("Aakash Raturi");
-    let activesection = ref("");
     let showTaskModal = ref(false);
+
+    const route=useRoute();
+
+    let activesection=ref(route.path.split('/')[1] || "inbox");
 
     const openTaskModal = () => {
         showTaskModal.value = true;
@@ -81,6 +82,13 @@
     const setActiveSection = (section) => {
         activesection.value = section;
     };
+
+    watch(
+      ()=>route.path,
+      (newPath,oldPath)=>{
+        activesection.value=newPath.split("/")[1] || "inbox";
+      }
+    );
 
     const iconstyles = (section) => ({
         color: activesection.value === section ? "red" : "black",
