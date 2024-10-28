@@ -1,80 +1,190 @@
 <template>
   <div class="main-div">
     <h1>Inbox</h1>
-    <div v-if="tasks_list && tasks_list.length > 0" class="tasks-container">
-      <div v-for="task in tasks_list" :key="task.task_id" class="task-item">
-        <div class="task-header">
-          <div>
-            <h2><font-awesome-icon :icon="['far', 'circle']" />{{ task.task_name }}</h2>
-            <span :class="priorityColor(task.priority)" class="priority-label">{{ task.priority }}</span>
-          </div>
-          <span class="status" :class="{ 'status-completed': task.taskState === 'completed', 'status-pending': task.taskState !== 'completed' }">
-            {{ task.taskState }}
-          </span>
-        </div>
-        <p class="task-desc">{{ task.task_desc }}</p>
-        <p class="task-info">
-          <span>Due: {{ task.due_date }}</span>
-          <span>Tags: {{ task.tags }}</span>
-        </p>
+      <div v-if="tasks_list && tasks_list.length > 0" class="tasks-container">
+         <div v-for="task in tasks_list" :key="task.task_id" class="task-item">
+            <div class="task-header">
+               <div>
+                  <h2>{{ task.task_name }}</h2>
+                  <span :class="priorityColor(task.priority)" class="priority-label">{{ task.priority }}</span>
+               </div>
+               <span class="status" :class="{'status-completed': task.taskState === 'Completed', 'status-pending': task.taskState !== 'Completed'}">
+                  {{ task.taskState }}
+               </span>
+            </div>
+            <p class="task-desc">{{ task.task_desc }}</p>
+            <p class="task-info">
+               <span>Due: {{ task.due_date }}</span>
+               <span>Tags: {{ task.tags }}</span>
+            </p>
+            <div class="icon-buttons">
+               <font-awesome-icon :icon="['fas', 'edit']" class="edit-icon" @click="openEditModal(task)" />
+               <font-awesome-icon :icon="['fas', 'trash']" class="delete-icon" @click="showMessage(task.task_id)" />
+            </div>
+         </div>
       </div>
-    </div>
-    <div v-else>
-      <p>No tasks found.</p>
+      <div v-else class="not-found">
+         <p>No tasks found.</p>
+      </div>
+    <div v-if="isEditModalOpen" class="modal-overlay" @click.self="closeEditModal">
+      <div class="modal-content">
+        <h2>Edit Task</h2>
+        <input v-model="editTask.task_name" placeholder="Task Name"/>
+        <textarea v-model="editTask.task_desc" placeholder="Task Description"></textarea>
+        <input v-model="editTask.due_date" placeholder="Due Date" @change="formatDate"/>
+        <input v-model="editTask.priority" placeholder="Priority"/>
+        <input v-model="editTask.taskState"/>
+        <input v-model="editTask.due_date" type="date" id="due_date"/>
+        <input v-model="editTask.tags"/>
+        <button @click="updateTask">Save Changes</button>
+        <button @click="closeEditModal">Cancel</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted } from "vue";
+import Toastify from 'toastify-js';
+import 'toastify-js/src/toastify.css';
+import { VueDraggableNext } from 'vue-draggable-next';
 
-const user_id = '1';
+const user_id = "1";
 const tasks_list = ref([]);
+const isEditModalOpen = ref(false);
+const editTask = ref({});
 
 const fetchTasks = async () => {
   try {
     const { data, error } = await useFetch(`http://localhost:3000/api/get-task?user_id=${user_id}`, {
-      method: 'GET',
+      method: "GET",
     });
-    console.log('API response:', data.value.body);
-
     if (error.value) {
-      console.error('Error Fetching tasks:', error.value);
-    } else if (data.value && data.value.body.tasks) {
+      console.error("Error Fetching tasks:", error.value);
+    }
+    else if (data.value && data.value.body.tasks) {
       tasks_list.value = data.value.body.tasks;
     }
-  } catch (err) {
-    console.error('Error:', err);
+  }
+  catch (err) {
+    console.error("Error:", err);
+  }
+};
+
+const showMessage = async (action) => {
+  try{
+    const { data, error } = await useFetch(`http://localhost:3000/api/delete-task?user_id=${user_id}&task_id=${action}`, {
+      method: "DELETE",
+    });
+    if (error.value) {
+      Toastify({ 
+         text: "Getting Some Issue!!", 
+         duration: 3000, 
+         backgroundColor: "red", 
+         close: true,
+         position:'center' 
+      }).showToast();
+    }
+    else {
+      Toastify({ 
+         text: "Task Deleted successfully!!", 
+         duration: 3000, 
+         backgroundColor: "green", 
+         close: true,
+         position:'center',
+      }).showToast();
+      fetchTasks();
+    }
+  }
+  catch (err) {
+   console.error("Error:", err);
   }
 };
 
 const priorityColor = (priority) => {
-  return {
-    P1: 'priority-high',
-    P2: 'priority-medium',
-    P3: 'priority-low',
-    P4: 'priority-none',
-  }[priority] || 'priority-default';
+  return{ 
+     P1:"priority-high",
+     P2:"priority-medium", 
+     P3:"priority-low", 
+     P4:"priority-none" 
+   }[priority] || "priority-default";
+};
+
+const formatDate=()=>{
+   if (editTask.dueDate.value) {
+      editTask.due_date.value = format(new Date(editTask.due_date.value), 'yyyy-MM-dd');
+   }
+}
+
+const openEditModal = (task) => {
+  editTask.value = { ...task };
+  isEditModalOpen.value = true;
+};
+
+const closeEditModal = () => {
+  isEditModalOpen.value = false;
+};
+
+const updateTask = async () => {
+  try{
+    const { data, error } = await useFetch(`http://localhost:3000/api/update-task`,{
+      method: "PUT",
+      body: JSON.stringify(editTask.value),
+    });
+    if(error.value){
+      Toastify({ 
+         text:"Error updating task!",
+         duration:3000,
+         backgroundColor:"red",
+         position:"center",
+         close:true
+      }).showToast();
+    } 
+    else{
+      Toastify({ 
+         text:"Task updated successfully!", 
+         duration:3000,
+         backgroundColor:"green", 
+         close:true,
+         position:"center"
+      }).showToast();
+      fetchTasks();
+      closeEditModal();
+    }
+  }
+  catch (err) {
+   console.error("Error:", err);
+  }
 };
 
 onMounted(() => {
   fetchTasks();
 });
 </script>
-
 <style scoped>
 h1 {
   color: #2d2d2d;
   font-size: 2em;
-  margin-left:68px;
+  margin-left: 70px;
   margin-bottom: 20px;
 }
 
-.tasks-container{
-   display: flex;
-   flex-wrap: wrap;
-   gap:15px;
-   justify-content: center;
+.tasks-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+
+.icon-buttons {
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  gap:8px;
+}
+
+.not-found > p{
+   margin-left:75px;
 }
 
 .task-item {
@@ -153,5 +263,67 @@ h2 {
 .priority-none {
   color: #5cb85c;
   background-color: #d4edda;
+}
+
+.edit-icon,
+.delete-icon {
+  font-size: 16px;
+  color: #888;
+  cursor: pointer;
+}
+
+.edit-icon:hover {
+  color: #007bff;
+}
+
+.delete-icon:hover {
+  color: #dc3545;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.modal-content input,
+.modal-content textarea {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-content button {
+  padding: 10px 15px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-content button:first-of-type {
+  background-color: #28a745;
+  color: white;
+}
+
+.modal-content button:last-of-type {
+  background-color: #dc3545;
+  color: white;
 }
 </style>

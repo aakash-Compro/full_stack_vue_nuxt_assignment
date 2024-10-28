@@ -88,7 +88,7 @@
       (newPath,oldPath)=>{
         activesection.value=newPath.split("/")[1] || "inbox";
       }
-    );
+    )
 
     const iconstyles = (section) => ({
         color: activesection.value === section ? "red" : "black",

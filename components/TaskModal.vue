@@ -82,6 +82,7 @@
       method: 'POST',
       body: taskData,
     });
+    
     if (data.value && data.value.status === 201) {
       Toastify({
         text: "Task created successfully!",
@@ -124,7 +125,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 1;
   }
 
   .task-modal {
