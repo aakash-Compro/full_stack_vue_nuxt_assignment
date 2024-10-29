@@ -1,62 +1,56 @@
 import { ddbDocClient } from "../utils/dynamodb";
-import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { UpdateCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event);
     const { tags, user_id } = body;
 
-    if (!tags) {
+    if (!tags || !user_id) {
       return {
         statusCode: 400,
         body: {
-          error: "tags are required",
+          error: "Tags and user_id are required",
         },
       };
     }
 
-    const updateExpressionParts = [];
-    const expressionAttributeValues = {};
+    const getUserParams = {
+      TableName: process.env.DYNAMODB_TABLE_NAME1,
+      Key: { user_id },
+    };
+      
+    const existingUser = await ddbDocClient.send(new GetCommand(getUserParams));
+    let updatedTags = tags;
 
-    if (tags) {
-      updateExpressionParts.push("tags = :tags");
-      expressionAttributeValues[":tags"] = tags;
+    if (existingUser.Item && existingUser.Item.tags) {
+      updatedTags = Array.from(new Set([...existingUser.Item.tags,tags]));
     }
 
     const timestamp = new Date().toISOString();
-    updateExpressionParts.push("updated_at = :updated_at");
-    expressionAttributeValues[":updated_at"] = timestamp;
 
-    if (updateExpressionParts.length === 1) {
-      return {
-        statusCode: 400,
-        body: {
-          error: "No fields to update",
-        },
-      };
-    }
-
-    const updateExpression = "set " + updateExpressionParts.join(", ");
     const params = {
       TableName: process.env.DYNAMODB_TABLE_NAME1,
-      Key: {
-        user_id: user_id,
+      Key: { user_id },
+      UpdateExpression: "SET tags = :tags, updated_at = :updated_at",
+      ExpressionAttributeValues: {
+        ":tags": updatedTags,
+        ":updated_at": timestamp,
       },
-      UpdateExpression: updateExpression,
-      ExpressionAttributeValues: expressionAttributeValues,
       ReturnValues: "ALL_NEW",
     };
 
-    const updatedTask = await ddbDocClient.send(new UpdateCommand(params));
+    const updatedUser = await ddbDocClient.send(new UpdateCommand(params));
+
     return {
       statusCode: 200,
       body: {
-        message: "Task updated successfully",
-        updatedTask: updatedTask.Attributes,
+        message: "User tags updated successfully",
+        updatedUser: updatedUser.Attributes,
       },
     };
   } catch (err) {
-    console.error("Error updating task:", err);
+    console.error("Error updating user tags:", err);
     return {
       statusCode: 500,
       body: {

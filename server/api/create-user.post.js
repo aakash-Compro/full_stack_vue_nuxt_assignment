@@ -1,12 +1,12 @@
 import { ddbDocClient } from '../utils/dynamodb';
-import { PutCommand } from "@aws-sdk/lib-dynamodb";
+import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 
 export default defineEventHandler(async (event) => {
     try {
         const body = await readBody(event);
-        const { user_id, first_name, last_name, email,tags} = body;
+        const { user_id, first_name, last_name, email, tags = [] } = body;
 
-        if (!user_id || !first_name || !last_name || !email || !tags) {
+        if (!user_id || !first_name || !last_name || !email) {
             return {
                 status: 400,
                 body: {
@@ -16,7 +16,6 @@ export default defineEventHandler(async (event) => {
         }
 
         const priority_tag = ['P1', 'P2', 'P3', 'P4'];
-
         const timestamp = new Date().toISOString();
 
         const userItem = {
@@ -26,26 +25,26 @@ export default defineEventHandler(async (event) => {
             email,
             priority_tag,
             tags,
-            created_at: timestamp,
+            created_at:timestamp,
         };
 
-        const params = {
+        const putParams = {
             TableName: process.env.DYNAMODB_TABLE_NAME1,
             Item: userItem,
         };
 
-        await ddbDocClient.send(new PutCommand(params));
+        await ddbDocClient.send(new PutCommand(putParams));
 
         return {
             status: 201,
             body: {
-                message: 'User created successfully',
+                message: 'User created or updated successfully',
                 user: userItem,
             },
         };
     }
     catch (err) {
-        console.error('Error creating user:', err);
+        console.error('Error creating/updating user:', err);
         return {
             status: 500,
             body: {
