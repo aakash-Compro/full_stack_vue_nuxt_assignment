@@ -78,7 +78,39 @@
       due_date: dueDate.value
     };
 
-    const { data, error, pending } = await useFetch('http://localhost:3000/api/create-todo', {
+    const updateResponse=await $fetch('http://localhost:3000/api/update-user',{
+      method:'PUT',
+      body:{
+        user_id:'1',
+        tags:tag.value
+      }
+    });
+
+    if(updateResponse.error){
+       Toastify({
+        text: "Failed to update user!",
+        duration: 3000,
+        gravity: "top",
+        position: "center",
+        backgroundColor: "red",
+        position:'center',
+        close: true
+      }).showToast();
+      return;
+    }
+    else{
+      Toastify({
+        text: "Successfull Update user",
+        duration: 3000,
+        gravity: "top",
+        position: "center",
+        backgroundColor: "green",
+        position:'center',
+        close: true
+      }).showToast();
+    }
+
+    const { data, error } = await useFetch('http://localhost:3000/api/create-todo', {
       method: 'POST',
       body: taskData,
     });

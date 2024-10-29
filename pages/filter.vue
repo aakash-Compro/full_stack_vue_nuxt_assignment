@@ -29,7 +29,7 @@
  const arr_list=ref({});
  const user_id=1;
 
-   const fetchTasks = async () => {
+   const fetchTasks=async()=>{
       try{
          const { data, error } = await useFetch(`http://localhost:3000/api/get-user?user_id=${user_id}`, {
             method: "GET",
@@ -38,11 +38,10 @@
             console.error("Error Fetching tasks:", error.value);
          }
          else if (data.value && data.value.body.user) {
-            console.log("User Deatils:",data.value.body.user);
             arr_list.value = data.value.body.user;
          }
       }
-      catch (err) {
+      catch (err){
          console.error("Error:", err);
       }
    };

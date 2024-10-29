@@ -1,8 +1,8 @@
 <template>
   <div class="main-div">
     <h1>Inbox</h1>
-      <div v-if="tasks_list && tasks_list.length > 0" class="tasks-container">
-         <div v-for="task in tasks_list" :key="task.task_id" class="task-item">
+      <div v-if="taskStore.tasks_list && taskStore.tasks_list.length > 0" class="tasks-container">
+         <div v-for="task in taskStore.tasks_list" :key="task.task_id" class="task-item">
             <div class="task-header">
                <div>
                   <h2>{{ task.task_name }}</h2>
@@ -47,29 +47,12 @@
 import { ref, onMounted } from "vue";
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
-import { VueDraggableNext } from 'vue-draggable-next';
+import { useTask } from "@/stores/inboxtaskstore";
 
-const user_id = "1";
+const taskStore = useTask();
 const tasks_list = ref([]);
 const isEditModalOpen = ref(false);
 const editTask = ref({});
-
-const fetchTasks = async () => {
-  try {
-    const { data, error } = await useFetch(`http://localhost:3000/api/get-task?user_id=${user_id}`, {
-      method: "GET",
-    });
-    if (error.value) {
-      console.error("Error Fetching tasks:", error.value);
-    }
-    else if (data.value && data.value.body.tasks) {
-      tasks_list.value = data.value.body.tasks;
-    }
-  }
-  catch (err) {
-    console.error("Error:", err);
-  }
-};
 
 const showMessage = async (action) => {
   try{
@@ -127,203 +110,238 @@ const closeEditModal = () => {
 
 const updateTask = async () => {
   try{
-    const { data, error } = await useFetch(`http://localhost:3000/api/update-task`,{
-      method: "PUT",
-      body: JSON.stringify(editTask.value),
-    });
-    if(error.value){
-      Toastify({ 
-         text:"Error updating task!",
-         duration:3000,
-         backgroundColor:"red",
-         position:"center",
-         close:true
-      }).showToast();
-    } 
-    else{
-      Toastify({ 
-         text:"Task updated successfully!", 
-         duration:3000,
-         backgroundColor:"green", 
-         close:true,
-         position:"center"
-      }).showToast();
-      fetchTasks();
-      closeEditModal();
-    }
-  }
-  catch (err) {
-   console.error("Error:", err);
-  }
+      const updateResponse=await $fetch('http://localhost:3000/api/update-user',{
+         method:'PUT',
+         body:{
+            user_id:'1',
+            tags:editTask.value.tags
+         }
+      });
+
+      if(updateResponse.error){
+         Toastify({
+         text: "Failed to update user!",
+         duration: 3000,
+         gravity: "top",
+         position: "center",
+         backgroundColor: "red",
+         position:'center',
+         close: true
+         }).showToast();
+         return;
+      }
+
+      else{
+         Toastify({
+         text: "Successfull Update user",
+         duration: 3000,
+         gravity: "top",
+         position: "center",
+         backgroundColor: "green",
+         position:'center',
+         close: true
+         }).showToast();
+      }
+      const { data, error } = await useFetch(`http://localhost:3000/api/update-task`,{
+         method: "PUT",
+         body: JSON.stringify(editTask.value),
+      });
+      if(error.value){
+         Toastify({ 
+            text:"Error updating task!",
+            duration:3000,
+            backgroundColor:"red",
+            position:"center",
+            close:true
+         }).showToast();
+      } 
+      else{
+         const index = taskStore.tasks_list.findIndex(task => task.task_id === editTask.value.task_id);
+         if (index !== -1) {
+            taskStore.tasks_list[index] = { ...taskStore.tasks_list[index], ...editTask.value };
+         }
+         Toastify({ 
+            text:"Task updated successfully!", 
+            duration:3000,
+            backgroundColor:"green", 
+            close:true,
+            position:"center"
+         }).showToast();
+         taskStore.isDataFetched=false;
+         taskStore.fetchTasks();
+         closeEditModal();
+         return;
+      }
+   }
+   catch (err) {
+      console.error("Error:", err);
+   }
 };
-
-onMounted(() => {
-  fetchTasks();
-});
+  taskStore.fetchTasks();
 </script>
-<style scoped>
-h1 {
-  color: #2d2d2d;
-  font-size: 2em;
-  margin-left: 70px;
-  margin-bottom: 20px;
-}
+   <style scoped>
+   h1 {
+   color: #2d2d2d;
+   font-size: 2em;
+   margin-left: 70px;
+   margin-bottom: 20px;
+   }
 
-.tasks-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: center;
-}
+   .tasks-container {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 15px;
+   justify-content: center;
+   }
 
-.icon-buttons {
-  bottom: 10px;
-  right: 10px;
-  display: flex;
-  gap:8px;
-}
+   .icon-buttons {
+   bottom: 10px;
+   right: 10px;
+   display: flex;
+   gap:8px;
+   }
 
-.not-found > p{
-   margin-left:75px;
-}
+   .not-found > p{
+      margin-left:75px;
+   }
 
-.task-item {
-  background: #f9f9f9;
-  border-radius: 8px;
-  width: 40%;
-  padding: 15px;
-  margin-bottom: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-}
+   .task-item {
+   background: #f9f9f9;
+   border-radius: 8px;
+   width: 40%;
+   padding: 15px;
+   margin-bottom: 15px;
+   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+   cursor: pointer;
+   }
 
-.task-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+   .task-header {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   }
 
-h2 {
-  margin: 0;
-  font-size: 1.5em;
-  display: inline;
-}
+   h2 {
+   margin: 0;
+   font-size: 1.5em;
+   display: inline;
+   }
 
-.priority-label {
-  font-size: 0.9em;
-  margin-left: 8px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: bold;
-}
+   .priority-label {
+   font-size: 0.9em;
+   margin-left: 8px;
+   padding: 2px 6px;
+   border-radius: 4px;
+   font-weight: bold;
+   }
 
-.status {
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-weight: bold;
-  color: white;
-}
+   .status {
+   padding: 5px 10px;
+   border-radius: 5px;
+   font-weight: bold;
+   color: white;
+   }
 
-.status-completed {
-  background-color: green;
-}
+   .status-completed {
+   background-color: green;
+   }
 
-.status-pending {
-  background-color: red;
-}
+   .status-pending {
+   background-color: red;
+   }
 
-.task-desc {
-  font-size: 1em;
-  color: #555;
-  margin: 10px 0;
-}
+   .task-desc {
+   font-size: 1em;
+   color: #555;
+   margin: 10px 0;
+   }
 
-.task-info {
-  font-size: 0.9em;
-  color: #888;
-  display: flex;
-  flex-direction: column;
-}
+   .task-info {
+   font-size: 0.9em;
+   color: #888;
+   display: flex;
+   flex-direction: column;
+   }
 
-.priority-high {
-  color: #d9534f;
-  background-color: #f8d7da;
-}
+   .priority-high {
+   color: #d9534f;
+   background-color: #f8d7da;
+   }
 
-.priority-medium {
-  color: #f0ad4e;
-  background-color: #fff3cd;
-}
+   .priority-medium {
+   color: #f0ad4e;
+   background-color: #fff3cd;
+   }
 
-.priority-low {
-  color: #5bc0de;
-  background-color: #d1ecf1;
-}
+   .priority-low {
+   color: #5bc0de;
+   background-color: #d1ecf1;
+   }
 
-.priority-none {
-  color: #5cb85c;
-  background-color: #d4edda;
-}
+   .priority-none {
+   color: #5cb85c;
+   background-color: #d4edda;
+   }
 
-.edit-icon,
-.delete-icon {
-  font-size: 16px;
-  color: #888;
-  cursor: pointer;
-}
+   .edit-icon,
+   .delete-icon {
+   font-size: 16px;
+   color: #888;
+   cursor: pointer;
+   }
 
-.edit-icon:hover {
-  color: #007bff;
-}
+   .edit-icon:hover {
+   color: #007bff;
+   }
 
-.delete-icon:hover {
-  color: #dc3545;
-}
+   .delete-icon:hover {
+   color: #dc3545;
+   }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+   .modal-overlay {
+   position: fixed;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background-color: rgba(0, 0, 0, 0.5);
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   }
 
-.modal-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 500px;
-  width: 100%;
-}
+   .modal-content {
+   background: #fff;
+   padding: 20px;
+   border-radius: 8px;
+   max-width: 500px;
+   width: 100%;
+   }
 
-.modal-content input,
-.modal-content textarea {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
+   .modal-content input,
+   .modal-content textarea {
+   width: 100%;
+   margin-bottom: 10px;
+   padding: 8px;
+   border: 1px solid #ccc;
+   border-radius: 4px;
+   }
 
-.modal-content button {
-  padding: 10px 15px;
-  margin-right: 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
+   .modal-content button {
+   padding: 10px 15px;
+   margin-right: 10px;
+   border: none;
+   border-radius: 4px;
+   cursor: pointer;
+   }
 
-.modal-content button:first-of-type {
-  background-color: #28a745;
-  color: white;
-}
+   .modal-content button:first-of-type {
+   background-color: #28a745;
+   color: white;
+   }
 
-.modal-content button:last-of-type {
-  background-color: #dc3545;
-  color: white;
-}
+   .modal-content button:last-of-type {
+   background-color: #dc3545;
+   color: white;
+   }
 </style>

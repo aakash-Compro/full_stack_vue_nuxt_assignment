@@ -4,7 +4,7 @@ import { UpdateCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event);
-    const { tags, user_id } = body;
+    const { user_id,tags } = body;
 
     if (!tags || !user_id) {
       return {
