@@ -90,6 +90,8 @@ const tasks_list = ref([]);
 const isEditModalOpen = ref(false);
 const editTask = ref({});
 const currentId=1;
+import { todayTask } from '@/stores/todaytaskstore';
+const store=todayTask();
 
 const showMessage = async (action) => {
   try{
@@ -122,9 +124,11 @@ const showMessage = async (action) => {
       if(index!==-1){
          taskStore.tasks_list.splice(index,1);
       }
+      store.flag=false;
       console.log("Delete",index);
     }
-  } catch (err) {
+  }
+  catch (err) {
     console.error("Error:", err);
   }
 };
@@ -192,6 +196,7 @@ const updateTask = async () => {
         position: "center",
         close: true,
       }).showToast();
+      store.flag=false;
     }
     const { data, error } = await useFetch(
       `http://localhost:3000/api/update-task`,
@@ -226,6 +231,7 @@ const updateTask = async () => {
         position: "center",
       }).showToast();
       taskStore.isDataFetched = false;
+      store.flag=false;
       taskStore.fetchTasks();
       closeEditModal();
       return;

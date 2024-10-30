@@ -1,8 +1,8 @@
 <template>
    <div>
     <h1>Today Task</h1>
-    <div v-if="tasks_list && tasks_list.length > 0" class="tasks-container">
-      <div v-for="task in tasks_list" :key="task.task_id" class="task-item">
+    <div v-if="store.taskslist_date && store.taskslist_date.length > 0" class="tasks-container">
+      <div v-for="task in store.taskslist_date" :key="task.task_id" class="task-item">
         <div class="task-header">
           <div>
             <h2>{{ task.task_name }}</h2>
@@ -29,9 +29,11 @@
    import { ref, onMounted } from "vue";
    import Toastify from 'toastify-js';
    import 'toastify-js/src/toastify.css';
-   const tasks_list = ref([]);
    const user_id = "1";
+   const taskslist_date=ref([]);
    import { format } from 'date-fns';
+   import { todayTask } from '@/stores/todaytaskstore';
+   const store=todayTask();
 
    const priorityColor=(priority)=>{
    return { 
@@ -41,31 +43,9 @@
       P4:"priority-none"
       }[priority] || "priority-default";
    };
-
-   const fetchTasks = async () => {
-      const currentDate = format(new Date(), 'yyyy-MM-dd');
-      try {
-         const { data, error } = await useFetch(`http://localhost:3000/api/filter-task?user_id=${user_id}&due_date=${currentDate}`,{
-            method: "GET",
-         });
-         if (error.value) {
-            console.error("Error Fetching tasks:", error.value);
-         }
-         else if (data.value && data.value.body.tasks) {
-            console.log('Data Fetch on Date:',data.value);
-            
-            tasks_list.value = data.value.body.tasks;
-         }
-      }
-      catch (err) {
-         console.error("Error:", err);
-      }
-   };
-
-   onMounted(() => {
-    fetchTasks();
-   });
-
+   if(store.flag===false){
+    store.fetchTasks();
+   }
 </script>
 
 <style scoped>

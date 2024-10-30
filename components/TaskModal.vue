@@ -48,7 +48,8 @@
   import { format } from 'date-fns';
   import Toastify from 'toastify-js';
   import 'toastify-js/src/toastify.css';
-  import { useTask } from "@/stores/inboxtaskstore"
+  import { useTask } from "@/stores/inboxtaskstore";
+  import { todayTask } from '@/stores/todaytaskstore';
 
   const emit = defineEmits(['close', 'add']);
 
@@ -60,6 +61,7 @@
   let isOpen = ref(true);
   const user_id=1;
   const taskstore=useTask();
+  const store=todayTask();
 
   const closeModal = () => {
     emit('close');
@@ -111,6 +113,7 @@
         position:'center',
         close: true
       }).showToast();
+      store.flag=false;
     }
 
     const { data, error } = await useFetch('http://localhost:3000/api/create-todo', {
@@ -128,6 +131,7 @@
         close: true
       }).showToast();
       taskstore.isDataFetched=false;
+      store.flag=false;
       taskstore.tasks_list.push(data.value.body.todo);
       closeModal();
     }
