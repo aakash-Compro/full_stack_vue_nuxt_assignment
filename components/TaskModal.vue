@@ -48,6 +48,7 @@
   import { format } from 'date-fns';
   import Toastify from 'toastify-js';
   import 'toastify-js/src/toastify.css';
+  import { useTask } from "@/stores/inboxtaskstore"
 
   const emit = defineEmits(['close', 'add']);
 
@@ -57,6 +58,8 @@
   let tag = ref('');
   let dueDate = ref('');
   let isOpen = ref(true);
+  const user_id=1;
+  const taskstore=useTask();
 
   const closeModal = () => {
     emit('close');
@@ -124,9 +127,11 @@
         backgroundColor: "green",
         close: true
       }).showToast();
+      taskstore.isDataFetched=false;
+      taskstore.tasks_list.push(data.value.body.todo);
       closeModal();
     }
-    else {
+    else{
       Toastify({
         text: "Failed to create task!",
         duration: 3000,
