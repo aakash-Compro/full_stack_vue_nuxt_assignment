@@ -50,6 +50,7 @@
   import 'toastify-js/src/toastify.css';
   import { useTask } from "@/stores/inboxtaskstore";
   import { todayTask } from '@/stores/todaytaskstore';
+  import { filterlabel } from '@/stores/filterlabelstore';
 
   const emit = defineEmits(['close', 'add']);
 
@@ -62,6 +63,7 @@
   const user_id=1;
   const taskstore=useTask();
   const store=todayTask();
+  const store1=filterlabel();
 
   const closeModal = () => {
     emit('close');
@@ -114,6 +116,10 @@
         close: true
       }).showToast();
       store.flag=false;
+      if(!store1.arr_list.includes(tag.value)){
+        store1.arr_list.push(tag.value);
+      }
+      store1.flag=false;
     }
 
     const { data, error } = await useFetch('http://localhost:3000/api/create-todo', {

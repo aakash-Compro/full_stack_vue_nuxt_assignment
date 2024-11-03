@@ -3,8 +3,8 @@
       <h1>Filters and Labels</h1>
       <div class="filters">
          <h3>Filters</h3>
-         <div v-if="arr_list && arr_list.length > 0" class="filter-tag">
-            <div v-for="curr in arr_list" :key="curr.created_at" class="filter-item">
+         <div v-if="store.arr_list && store.arr_list.length > 0" class="filter-tag">
+            <div v-for="curr in store.arr_list" :key="curr.created_at" class="filter-item">
                <div v-for="p_tag in curr.priority_tag" :key="p_tag" class="tag">
                   <span>{{ p_tag }}</span>
                </div>
@@ -13,8 +13,8 @@
       </div>
       <div class="labels">
          <h3>Labels</h3>
-         <div v-if="arr_list && arr_list.length > 0" class="label-tags">
-            <div v-for="curr in arr_list" :key="curr.created_at" class="label-item">
+         <div v-if="store.arr_list && store.arr_list.length > 0" class="label-tags">
+            <div v-for="curr in store.arr_list" :key="curr.created_at" class="label-item">
                <div v-for="tags in curr.tags" :key="tags" class="label">
                   <span>{{tags}}</span>
                </div>
@@ -26,29 +26,12 @@
 
 <script setup>
  import { ref, onMounted } from "vue";
- const arr_list=ref({});
+ import { filterlabel } from '@/stores/filterlabelstore';
  const user_id=1;
-
-   const fetchTasks=async()=>{
-      try{
-         const { data, error } = await useFetch(`http://localhost:3000/api/get-user?user_id=${user_id}`, {
-            method: "GET",
-         });
-         if (error.value) {
-            console.error("Error Fetching tasks:", error.value);
-         }
-         else if (data.value && data.value.body.user) {
-            arr_list.value = data.value.body.user;
-         }
-      }
-      catch (err){
-         console.error("Error:", err);
-      }
-   };
-
- onMounted(()=>{
-   fetchTasks();
- })
+ const store=filterlabel();
+ if(store.flag===false){
+   store.fetchTasks();
+ }
 </script>
 
 <style scoped>
