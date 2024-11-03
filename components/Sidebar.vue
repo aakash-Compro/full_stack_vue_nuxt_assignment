@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar">
     <div class="user-info">
-      <p>{{ username }}</p>
+      <p>{{ store.usernamevalue }}</p>
     </div>
     <nav class="menu">
       <ul>
@@ -63,14 +63,12 @@
     import { ref,onMounted, watch } from "vue";
     import TaskModal from "@/components/TaskModal.vue";
     import { useRoute, useRouter } from 'vue-router';
+    import { username } from '@/stores/usernamestore';
 
-    let username = ref("");
+    const store=username();
     let showTaskModal = ref(false);
-
     const route=useRoute();
-
     let activesection=ref(route.path.split('/')[1]);
-
     const openTaskModal = () => {
       showTaskModal.value = true;
     };
@@ -85,24 +83,6 @@
 
     const current_id=1;
 
-    const fetchdata=async()=>{
-      try{
-        const { data,error }=await useFetch(`http://localhost:3000/api/get-user?user_id=${current_id}`,{
-          method:'GET',
-        });
-        if(error.value) {
-          console.error("Error Fetching tasks:", error.value);
-        }
-        else if(data.value && data.value.body.user){
-          console.log("Name",data.value.body.user[0].first_name);
-          username.value=data.value.body.user[0].first_name+" "+data.value.body.user[0].last_name;
-        }
-      }
-      catch(err){
-        console.err("Err wile fetching:",err);
-      }
-    }
-
     watch(
       ()=>route.path,
       (newPath,oldPath)=>{
@@ -115,7 +95,9 @@
         marginRight: "4px",
         marginLeft: "5px",
     });
-    fetchdata();
+    if(store.flag===false){
+      store.fetchdata();
+    }
 </script>
 
 <style>

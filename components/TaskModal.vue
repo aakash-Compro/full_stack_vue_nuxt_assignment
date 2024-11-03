@@ -116,7 +116,7 @@
         close: true
       }).showToast();
       store.flag=false;
-      if(!store1.arr_list.includes(tag.value)){
+      if(!store1.arr_list.includes (tag.value)){
         store1.arr_list.push(tag.value);
       }
       store1.flag=false;

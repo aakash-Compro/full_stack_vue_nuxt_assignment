@@ -91,7 +91,9 @@ const isEditModalOpen = ref(false);
 const editTask = ref({});
 const currentId=1;
 import { todayTask } from '@/stores/todaytaskstore';
+import { filterlabel } from '@/stores/filterlabelstore';
 const store=todayTask();
+const store1=filterlabel();
 
 const showMessage = async (action) => {
   try{
@@ -197,6 +199,7 @@ const updateTask = async () => {
         close: true,
       }).showToast();
       store.flag=false;
+      store1.flag=false;
     }
     const { data, error } = await useFetch(
       `http://localhost:3000/api/update-task`,
