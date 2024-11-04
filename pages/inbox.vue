@@ -127,6 +127,8 @@ const showMessage = async (action) => {
          taskStore.tasks_list.splice(index,1);
       }
       store.flag=false;
+      store1.flag=false;
+      taskStore.isDataFetched=false;
       console.log("Delete",index);
     }
   }
@@ -199,6 +201,7 @@ const updateTask = async () => {
         close: true,
       }).showToast();
       store.flag=false;
+      taskStore.isDataFetched=false;
       store1.flag=false;
     }
     const { data, error } = await useFetch(
@@ -235,6 +238,7 @@ const updateTask = async () => {
       }).showToast();
       taskStore.isDataFetched = false;
       store.flag=false;
+      store1.flag=false;
       taskStore.fetchTasks();
       closeEditModal();
       return;
@@ -243,8 +247,10 @@ const updateTask = async () => {
     console.error("Error:", err);
   }
 };
+if(taskStore.isDataFetched===false){
+  taskStore.fetchTasks();
+}
 
-taskStore.fetchTasks();
 </script>
 <style scoped>
 h1 {

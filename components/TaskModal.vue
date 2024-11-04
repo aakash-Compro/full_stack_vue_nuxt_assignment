@@ -8,7 +8,6 @@
             <label for="task_name">Task Name:</label>
             <input type="text" id="task_name" v-model="taskName" required />
           </div>
-
           <div class="form-group">
             <label for="task_desc">Task Description:</label>
             <textarea id="task_desc" v-model="taskDesc" rows="4"></textarea>
@@ -22,7 +21,6 @@
               <option value="P4">P4</option>
             </select>
           </div>
-
           <div class="form-group">
             <label for="tag">Tag:</label>
             <input type="text" id="tag" v-model="tag" />

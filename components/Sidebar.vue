@@ -63,9 +63,9 @@
     import { ref,onMounted, watch } from "vue";
     import TaskModal from "@/components/TaskModal.vue";
     import { useRoute, useRouter } from 'vue-router';
-    import { username } from '@/stores/usernamestore';
+    import { filterlabel } from '@/stores/filterlabelstore';
 
-    const store=username();
+    const store=filterlabel();
     let showTaskModal = ref(false);
     const route=useRoute();
     let activesection=ref(route.path.split('/')[1]);
@@ -96,7 +96,7 @@
         marginLeft: "5px",
     });
     if(store.flag===false){
-      store.fetchdata();
+      store.fetchTasks();
     }
 </script>
 
