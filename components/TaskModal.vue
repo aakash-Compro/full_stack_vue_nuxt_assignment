@@ -83,7 +83,7 @@
       due_date: dueDate.value
     };
 
-    const updateResponse=await $fetch('http://localhost:3000/api/update-user',{
+    const updateResponse=await $fetch('/api/update-user',{
       method:'PUT',
       body:{
         user_id:'1',
@@ -120,7 +120,7 @@
       store1.flag=false;
     }
 
-    const { data, error } = await useFetch('http://localhost:3000/api/create-todo', {
+    const { data, error } = await useFetch('/api/create-todo', {
       method: 'POST',
       body: taskData,
     });

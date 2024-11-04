@@ -9,7 +9,7 @@ export const filterlabel = defineStore("filterlabelstore", () => {
     if(!flag.value){
       try{
         const { data, error } = await useFetch(
-          `http://localhost:3000/api/get-user?user_id=${1}`,
+          `/api/get-user?user_id=${1}`,
           {
             method: "GET",
           }

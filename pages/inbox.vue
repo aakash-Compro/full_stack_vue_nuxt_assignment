@@ -98,7 +98,7 @@ const store1=filterlabel();
 const showMessage = async (action) => {
   try{
     const { data, error } = await useFetch(
-      `http://localhost:3000/api/delete-task?user_id=${1}&task_id=${action}`,
+      `/api/delete-task?user_id=${1}&task_id=${action}`,
       {
         method: "DELETE",
       }
@@ -169,7 +169,7 @@ const closeEditModal = () => {
 const updateTask = async () => {
   try {
     const updateResponse = await $fetch(
-      "http://localhost:3000/api/update-user",
+      "/api/update-user",
       {
         method: "PUT",
         body: {

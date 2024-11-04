@@ -10,7 +10,7 @@ export const useTask = defineStore("inboxtaskstore", () => {
     if (!isDataFetched.value) {
       try {
         const { data, error } = await useFetch(
-          `http://localhost:3000/api/get-task?user_id=${currentuser}`,
+          `/api/get-task?user_id=${currentuser}`,
           {
             method: "GET",
           }
