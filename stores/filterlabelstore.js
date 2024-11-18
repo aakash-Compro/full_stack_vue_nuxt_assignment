@@ -9,20 +9,22 @@ export const filterlabel = defineStore("filterlabelstore", () => {
     if(!flag.value){
       try{
         const { data, error } = await useFetch(
-          `/api/get-user?user_id=${1}`,
+          `https://ce8y6nz84h.execute-api.ap-south-1.amazonaws.com/Prod/get-user?user_id=${1}`,
           {
             method: "GET",
           }
         );
+        console.log("Name:",data.value.user);
+        
         if(error.value){
           console.error("Error Fetching tasks:", error.value);
         }
-        else if (data.value && data.value.body.user) {
-          arr_list.value = data.value.body.user;
+        else if (data.value && data.value.user) {
+          arr_list.value = data.value.user;
           usernamevalue.value =
-          data.value.body.user[0].first_name +
+          data.value.user[0].first_name +
           " " +
-          data.value.body.user[0].last_name;
+          data.value.user[0].last_name;
           flag.value = true;
         }
       }

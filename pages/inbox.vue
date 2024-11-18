@@ -98,7 +98,7 @@ const store1=filterlabel();
 const showMessage = async (action) => {
   try{
     const { data, error } = await useFetch(
-      `/api/delete-task?user_id=${1}&task_id=${action}`,
+      `https://ce8y6nz84h.execute-api.ap-south-1.amazonaws.com/Prod/delete-task?user_id=${1}&task_id=${action}`,
       {
         method: "DELETE",
       }
@@ -169,7 +169,7 @@ const closeEditModal = () => {
 const updateTask = async () => {
   try {
     const updateResponse = await $fetch(
-      "/api/update-user",
+      "https://ce8y6nz84h.execute-api.ap-south-1.amazonaws.com/Prod/update-user",
       {
         method: "PUT",
         body: {
@@ -205,10 +205,10 @@ const updateTask = async () => {
       store1.flag=false;
     }
     const { data, error } = await useFetch(
-      `http://localhost:3000/api/update-task`,
+      `https://ce8y6nz84h.execute-api.ap-south-1.amazonaws.com/Prod/update-task`,
       {
         method: "PUT",
-        body: JSON.stringify(editTask.value),
+        body:editTask.value,
       }
     );
     if (error.value) {
@@ -247,10 +247,12 @@ const updateTask = async () => {
     console.error("Error:", err);
   }
 };
+
+console.log("Data inbox:",taskStore.tasks_list);
+
 if(taskStore.isDataFetched===false){
   taskStore.fetchTasks();
 }
-
 </script>
 <style scoped>
 h1 {

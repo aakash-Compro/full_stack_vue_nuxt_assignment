@@ -83,7 +83,7 @@
       due_date: dueDate.value
     };
 
-    const updateResponse=await $fetch('/api/update-user',{
+    const updateResponse=await $fetch('https://ce8y6nz84h.execute-api.ap-south-1.amazonaws.com/Prod/update-user',{
       method:'PUT',
       body:{
         user_id:'1',
@@ -120,12 +120,11 @@
       store1.flag=false;
     }
 
-    const { data, error } = await useFetch('/api/create-todo', {
+    const response = await $fetch('https://ce8y6nz84h.execute-api.ap-south-1.amazonaws.com/Prod/create-todo', {
       method: 'POST',
       body: taskData,
     });
-    
-    if (data.value && data.value.status === 201) {
+    if (response) {
       Toastify({
         text: "Task created successfully!",
         duration: 3000,
@@ -136,7 +135,7 @@
       }).showToast();
       taskstore.isDataFetched=false;
       store.flag=false;
-      taskstore.tasks_list.push(data.value.body.todo);
+      taskstore.tasks_list.push(response.todo);
       closeModal();
     }
     else{

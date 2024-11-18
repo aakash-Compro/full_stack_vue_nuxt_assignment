@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: AWS SAM Template for Nuxt Todo App with existing DynamoDB table and Lambda function
+
+Resources:
+  TaskFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: ./lambda/indexhandler.handler
+      Runtime: nodejs18.x
+      CodeUri: ./
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME2: 'tasktabletodo'
+          DYNAMODB_TABLE_NAME1: 'usertabletodo'
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:Query
+                - dynamodb:PutItem
+                - dynamodb:DeleteItem
+              Resource: 
+                - arn:aws:dynamodb:us-east-1:960197076806:table/tasktabletodo
+                - arn:aws:dynamodb:us-east-1:960197076806:table/usertabletodo
+                     
+      Events:
+        ApiGetTask:
+          Type: Api
+          Properties:
+            Path: /get-task
+            Method: get
+        ApiCreateTask:
+          Type: Api
+          Properties:
+            Path: /create-todo
+            Method: post
+        ApiFilterTask:
+          Type: Api
+          Properties:
+            Path: /filter-task
+            Method: get
+        ApiGetUserTask:
+          Type: Api
+          Properties:
+            Path: /get-user
+            Method: get
+        ApiDeleteTask:
+          Type: Api
+          Properties:
+            Path: /delete-task
+            Method: delete
+        ApiUpdateTask:
+          Type: Api
+          Properties:
+            Path: /update-task
+            Method: put
+        ApiUpdateUser:
+          Type: Api
+          Properties:
+            Path: /update-user
+            Method: put

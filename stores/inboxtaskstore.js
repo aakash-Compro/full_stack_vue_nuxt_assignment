@@ -6,26 +6,31 @@ export const useTask = defineStore("inboxtaskstore", () => {
   const isDataFetched = ref(false);
   const currentuser = 1;
 
-  const fetchTasks = async () =>{
-    if (!isDataFetched.value) {
-      try {
+  const fetchTasks = async () => {
+    if(!isDataFetched.value){
+      try{
         const { data, error } = await useFetch(
-          `/api/get-task?user_id=${currentuser}`,
+          `https://ce8y6nz84h.execute-api.ap-south-1.amazonaws.com/Prod/get-task?user_id=${currentuser}`,
           {
             method: "GET",
+            referrerPolicy: "no-referrer"
           }
         );
-        if (error.value) {
+        console.log("Aakash:", data);
+        if(error.value) {
           console.error("Error Fetching tasks:", error.value);
-        } else if (data.value && data.value.body.tasks) {
-          tasks_list.value = data.value.body.tasks;
-          console.log("Inside");
+        }
+        else if(data.value && data.value.tasks){
+          console.log("Tasks loaded successfully.");
+          tasks_list.value = data.value.tasks;
           isDataFetched.value = true;
         }
-      } catch (err) {
+      }
+      catch(err){
         console.error("Error:", err);
       }
     }
   };
-  return { tasks_list, fetchTasks,isDataFetched};
+
+  return { tasks_list, fetchTasks, isDataFetched };
 });

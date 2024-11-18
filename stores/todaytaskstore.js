@@ -12,16 +12,19 @@ export const todayTask = defineStore("todaytaskstore", () => {
       const currentDate = format(new Date(), "yyyy-MM-dd");
       try {
         const { data, error } = await useFetch(
-          `api/filter-task?user_id=${user_id}&due_date=${currentDate}`,
+          `https://ce8y6nz84h.execute-api.ap-south-1.amazonaws.com/Prod/filter-task?user_id=${user_id}&due_date=${currentDate}`,
           {
             method: "GET",
+            referrerPolicy: "no-referrer"
           }
         );
-        if (error.value) {
+        console.log('Today Aakash:',data.value.tasks);
+        if(error.value){
           console.error("Error Fetching tasks:", error.value);
-        } else if (data.value && data.value.body.tasks) {
-          console.log("Data Fetch on Date:", data.value.body.tasks);
-          taskslist_date.value = data.value.body.tasks;
+        }
+        else if(data) {
+          console.log("Data Fetch on Date:", data.value.tasks);
+          taskslist_date.value = data.value.tasks;
           flag.value = true;
         }
       } catch (err) {
